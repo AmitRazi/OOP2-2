@@ -4,19 +4,19 @@ import java.util.concurrent.*;
 import static java.lang.Thread.sleep;
 
 
-public class ConcreteTask<T> implements Runnable, Future<T>, Comparable<ConcreteTask> {
+public class CallableTask<T> implements Task, Future<T>,Runnable, Comparable<Task> {
     private Callable<T> op;
      private TaskType type;
      private boolean done = false;
      private boolean cancel = false;
      private T res;
 
-    public ConcreteTask(Callable<T> op){
+    public CallableTask(Callable<T> op){
          this.op = op;
          this.type = TaskType.IO;
          type.setTypePriority(5);
     }
-    public ConcreteTask(Callable<T> op, TaskType type){
+    public CallableTask(Callable<T> op, TaskType type){
         this.op = op;
         this.type = type;
     }
@@ -29,9 +29,7 @@ public class ConcreteTask<T> implements Runnable, Future<T>, Comparable<Concrete
         return type.getType();
     }
 
-    public <T> Callable<T> getOp(){
-        return (Callable<T>) this.op;
-    }
+
     @Override
     public boolean cancel(boolean mayInterruptIfRunning) {
         if(isDone()) return false;
@@ -75,7 +73,7 @@ public class ConcreteTask<T> implements Runnable, Future<T>, Comparable<Concrete
     }
 
     @Override
-    public int compareTo(ConcreteTask o) {
+    public int compareTo(Task o) {
         if(this.getTaskPriority() > o.getTaskPriority()) return 1;
         if(this.getTaskPriority() < o.getTaskPriority()) return -1;
         return 0;

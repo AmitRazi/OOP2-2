@@ -2,9 +2,9 @@
 import java.util.concurrent.Future;
 import java.util.concurrent.PriorityBlockingQueue;
 
-public class CustomExecutor {
+public class CustomExecutor{
 
-    private PriorityBlockingQueue<ConcreteTask<?>> queue;
+    private PriorityBlockingQueue<Task> queue;
     private ThreadGroup threadGroup = new ThreadGroup("MyThreadGroup");
     private boolean stopped = false;
 
@@ -15,8 +15,10 @@ public class CustomExecutor {
             worker.start();
         }
     }
-
-  public <T> Future<T> submit(ConcreteTask<T> task){
+    public void submit(RunnableTask task){
+        queue.add(task);
+    }
+  public <T> Future<T> submit(CallableTask<T> task){
         queue.add(task);
         return task;
   }
@@ -35,7 +37,7 @@ public class CustomExecutor {
         public void run(){
             while(stopped == false && !interrupted()){
                 try{
-                    final Runnable job = queue.take();
+                    final Runnable job = (Runnable) queue.take();
                     job.run();
                 } catch (InterruptedException e){
                     this.interrupt();
