@@ -1,5 +1,5 @@
-import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 
-public interface Task<T> extends Callable {
+public interface Task<T> extends Future<T> {
 
 }

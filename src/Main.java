@@ -1,22 +1,24 @@
 import java.util.concurrent.*;
 
-import static java.lang.Thread.currentThread;
-
 public class Main {
 
     public static void main(String[] args) {
-        TaskType t = TaskType.COMPUTATIONAL;
-        t.setTypePriority(8);
-        ConcreteTask<Integer> task = TaskFactory.createTask(() ->{
+        ConcreteTask<Integer> task = TaskFactory.createTask(() -> {
             int sum = 0;
-            for(int i = 0 ; i < 100 ;i++){
+            for(int i = 0 ; i < 100 ; i++){
                 sum+=i;
-            } return sum;
-                },t);
-        ExecutorService service = Executors.newFixedThreadPool(1);
-        Future<Integer> res = service.submit(task);
+            }
+            return sum;
+        });
+        ConcreteTask<String> task2 = TaskFactory.createTask(() -> {
+            return "HELLO ITS ME";
+        });
+        CustomExecutor service = new CustomExecutor();
+        Future<Integer> sumbit = service.submit(task);
+        Future<String> sumbit2 = service.submit(task2);
         try {
-            System.out.println(res.get());
+            System.out.println(sumbit.get());
+            System.out.println(sumbit2.get());
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         } catch (ExecutionException e) {
