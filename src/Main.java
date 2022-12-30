@@ -23,13 +23,13 @@ public class Main {
 
         Future<Integer> sumbit = service.submit(task);
         TaskType t = TaskType.COMPUTATIONAL;
-        t.setTypePriority(1);
-        RunnableTask task3 = TaskFactory.createTask(new RunnableTask(() -> {
-            for(int i = 0 ; i < 10000 ; i++){
+        t.setTypePriority(10);
+
+        service.submit(new RunnableTask(() -> {
+            for(int i = 0 ; i < 10 ; i++){
                 System.out.println(i);
             }
         }),t);
-        service.submit(task3);
         Future<String> sumbit2 = service.submit(task2);
         try {
             System.out.println(sumbit.get());

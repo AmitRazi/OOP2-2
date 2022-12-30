@@ -1,4 +1,5 @@
 
+import java.sql.SQLOutput;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.PriorityBlockingQueue;
@@ -8,13 +9,16 @@ public class CustomExecutor {
     private final PriorityBlockingQueue<Task> heap;
     private final ThreadGroup threadGroup = new ThreadGroup("MyThreadGroup");
     private boolean stopped = false;
+    private final int availableCPU = Runtime.getRuntime().availableProcessors();
+    private int ThreadCount = 0;
+
 
     public CustomExecutor() {
-        int availableCPU = Runtime.getRuntime().availableProcessors() / 2;
-        heap = new PriorityBlockingQueue<>(availableCPU);
+        heap = new PriorityBlockingQueue<>(availableCPU / 2);
         for (int i = 0; i < availableCPU; i++) {
             Worker worker = new Worker(threadGroup, "worker " + i);
             worker.start();
+            ThreadCount++;
         }
     }
 
@@ -55,10 +59,17 @@ public class CustomExecutor {
 
         @Override
         public void run() {
-            while (stopped == false && !interrupted()) {
+            boolean timeout = false;
+            long start = System.currentTimeMillis();
+            while (stopped == false && !interrupted() && !timeout) {
+                long time = System.currentTimeMillis()-start;
+                if ((time > 300) && (ThreadCount == availableCPU -1)) timeout = true;
                 try {
-                    final Runnable job = (Runnable) heap.take();
-                    job.run();
+                    if(!heap.isEmpty()) {
+                        final Runnable job = (Runnable) heap.take();
+                        job.run();
+                        start = System.currentTimeMillis();
+                    }
                 } catch (InterruptedException e) {
                     this.interrupt();
                 }
