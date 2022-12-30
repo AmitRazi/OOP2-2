@@ -4,22 +4,23 @@ import java.util.concurrent.PriorityBlockingQueue;
 
 public class CustomExecutor{
 
-    private PriorityBlockingQueue<Task> queue;
-    private ThreadGroup threadGroup = new ThreadGroup("MyThreadGroup");
+    private final PriorityBlockingQueue<Task> heap;
+    private final ThreadGroup threadGroup = new ThreadGroup("MyThreadGroup");
     private boolean stopped = false;
 
     public CustomExecutor(){
-        queue = new PriorityBlockingQueue<>(5);
-        for(int i = 0 ; i < 5 ; i++){
+        int availableCPU = Runtime.getRuntime().availableProcessors()/2;
+        heap = new PriorityBlockingQueue<>(availableCPU);
+        for(int i = 0 ; i < availableCPU ; i++){
             Worker worker = new Worker(threadGroup,"worker "+i);
             worker.start();
         }
     }
     public void submit(RunnableTask task){
-        queue.add(task);
+        heap.add(task);
     }
   public <T> Future<T> submit(CallableTask<T> task){
-        queue.add(task);
+        heap.add(task);
         return task;
   }
 
@@ -37,7 +38,7 @@ public class CustomExecutor{
         public void run(){
             while(stopped == false && !interrupted()){
                 try{
-                    final Runnable job = (Runnable) queue.take();
+                    final Runnable job = (Runnable) heap.take();
                     job.run();
                 } catch (InterruptedException e){
                     this.interrupt();

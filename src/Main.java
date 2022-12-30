@@ -21,7 +21,7 @@ public class Main {
         });
         CustomExecutor service = new CustomExecutor();
         service.submit(runnabletask);
-       Future<Integer> sumbit = service.submit(task);
+        Future<Integer> sumbit = service.submit(task);
         Future<String> sumbit2 = service.submit(task2);
         try {
             System.out.println(sumbit.get());
