@@ -34,19 +34,16 @@ public class Main {
         } catch (ExecutionException e) {
             throw new RuntimeException(e);
         }
+
         service.submit(new RunnableTask(() -> System.out.println("hello")));
         service.submit(new RunnableTask(() -> System.out.println("hello")));
-        sleep(50);
-        service.submit(new RunnableTask(() -> System.out.println("hello")));
-        sleep(50);
-        service.submit(new RunnableTask(() -> System.out.println("hello")));
-        sleep(50);
+
         service.submit(new RunnableTask(() -> System.out.println("hello")));
         service.submit(new RunnableTask(() -> System.out.println("hello")));
-        sleep(50);
         service.submit(new RunnableTask(() -> System.out.println("hello")));
         service.submit(new RunnableTask(() -> System.out.println("hello")));
-        sleep(50);
+        service.submit(new RunnableTask(() -> System.out.println("hello")));
+
         service.submit(new RunnableTask(() -> System.out.println("hello")));
         service.shutdown();
     }

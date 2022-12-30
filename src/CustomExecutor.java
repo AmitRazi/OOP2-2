@@ -11,7 +11,7 @@ public class CustomExecutor {
     private final int availableCPU = Runtime.getRuntime().availableProcessors();
     private int ThreadCount = 0;
     private int workerID = 0;
-    private int AssigedThreads = 0;
+    private int AssignedThreads = 0;
 
 
     public CustomExecutor() {
@@ -53,7 +53,7 @@ public class CustomExecutor {
     }
 
     private void CPUandHeapCheck(){
-        if(AssigedThreads == ThreadCount && ThreadCount < availableCPU -1){
+        if(AssignedThreads == ThreadCount && ThreadCount < availableCPU -1){
             createWorker(threadGroup,"worker " + workerID++);
         }
     }
@@ -83,10 +83,10 @@ public class CustomExecutor {
                 try {
                     if (!heap.isEmpty()) {
                         final Runnable job = (Runnable) heap.take();
-                        AssigedThreads++;
-                        System.out.println(AssigedThreads);
+                        AssignedThreads++;
+                        System.out.println(AssignedThreads);
                         job.run();
-                        AssigedThreads--;
+                        AssignedThreads--;
                         start = System.currentTimeMillis();
                     }
                 } catch (InterruptedException e) {
