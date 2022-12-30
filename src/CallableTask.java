@@ -4,35 +4,36 @@ import java.util.concurrent.*;
 import static java.lang.Thread.sleep;
 
 
-public class CallableTask<T> implements Task, Future<T>,Runnable, Comparable<Task> {
-    private Callable<T> op;
-     private TaskType type;
-     private boolean done = false;
-     private boolean cancel = false;
-     private T res;
+public class CallableTask<T> implements Task, Future<T>, Runnable, Comparable<Task> {
+    private final Callable<T> op;
+    private final TaskType type;
+    private boolean done = false;
+    private boolean cancel = false;
+    private T res;
 
-    public CallableTask(Callable<T> op){
-         this.op = op;
-         this.type = TaskType.IO;
-         type.setTypePriority(5);
+    public CallableTask(Callable<T> op) {
+        this.op = op;
+        this.type = TaskType.IO;
+        type.setTypePriority(5);
     }
-    public CallableTask(Callable<T> op, TaskType type){
+
+    public CallableTask(Callable<T> op, TaskType type) {
         this.op = op;
         this.type = type;
     }
 
-    public int getTaskPriority(){
+    public int getTaskPriority() {
         return type.getTypePriority();
     }
 
-    public TaskType getType(){
+    public TaskType getType() {
         return type.getType();
     }
 
 
     @Override
     public boolean cancel(boolean mayInterruptIfRunning) {
-        if(isDone()) return false;
+        if (isDone()) return false;
         Thread.currentThread().interrupt();
         return true;
     }
@@ -48,8 +49,8 @@ public class CallableTask<T> implements Task, Future<T>,Runnable, Comparable<Tas
     }
 
     @Override
-    public T get() throws InterruptedException, ExecutionException {
-        while(isDone() == false){
+    public T get() throws InterruptedException {
+        while (isDone() == false) {
             sleep(10);
         }
         return this.res;
@@ -63,8 +64,7 @@ public class CallableTask<T> implements Task, Future<T>,Runnable, Comparable<Tas
     @Override
     public void run() {
         try {
-            final T result = this.op.call();
-            this.res = result;
+            this.res = this.op.call();
             this.done = true;
 
         } catch (Exception e) {
@@ -74,8 +74,6 @@ public class CallableTask<T> implements Task, Future<T>,Runnable, Comparable<Tas
 
     @Override
     public int compareTo(Task o) {
-        if(this.getTaskPriority() > o.getTaskPriority()) return 1;
-        if(this.getTaskPriority() < o.getTaskPriority()) return -1;
-        return 0;
+        return Integer.compare(this.getTaskPriority(),o.getTaskPriority());
     }
 }

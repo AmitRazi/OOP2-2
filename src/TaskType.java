@@ -3,28 +3,30 @@ enum TaskType {
 
     private int TypePriority;
 
-    private TaskType(int priority){
-        if(validatePriority(priority)) TypePriority = priority;
-        else{
+     TaskType(int priority) {
+        if (validatePriority(priority)) TypePriority = priority;
+        else {
             throw new IllegalArgumentException("Not a valid priority");
         }
     }
 
-    public void setTypePriority(int priority){
-        if(validatePriority(priority)) TypePriority = priority;
-        else{
+    public void setTypePriority(int priority) {
+        if (validatePriority(priority)) TypePriority = priority;
+        else {
             throw new IllegalArgumentException("Not a valid priority");
         }
     }
 
-    public int getTypePriority(){
+    public int getTypePriority() {
         return this.TypePriority;
     }
-    public TaskType getType(){
+
+    public TaskType getType() {
         return this;
     }
+
     private boolean validatePriority(int priority) {
-        if(priority < 1 || priority > 10) return false;
+        if (priority < 1 || priority > 10) return false;
         return true;
     }
 }
