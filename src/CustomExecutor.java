@@ -1,21 +1,25 @@
 
+import java.sql.SQLOutput;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static java.lang.Thread.sleep;
 
 public class CustomExecutor {
 
-    private final PriorityBlockingQueue<Task> heap;
+    private final PriorityBlockingQueue<Task> queue;
     private final ThreadGroup threadGroup = new ThreadGroup("MyThreadGroup");
     private boolean stopped = false;
     private final int availableCPU = Runtime.getRuntime().availableProcessors();
     private int ThreadCount = 0;
     private int workerID = 0;
-    private int AssignedThreads = 0;
+    private AtomicInteger  AssignedThreads = new AtomicInteger(0);
 
 
     public CustomExecutor() {
-        heap = new PriorityBlockingQueue<>(availableCPU / 2);
+        queue = new PriorityBlockingQueue<>(availableCPU / 2);
         for (int i = 0; i < availableCPU / 2; i++) {
             createWorker(threadGroup, "worker " + workerID++);
         }
@@ -23,12 +27,12 @@ public class CustomExecutor {
 
     public void submit(RunnableTask task) {
         CPUandHeapCheck();
-        heap.add(task);
+        queue.add(task);
     }
 
     public <T> Future<T> submit(CallableTask<T> task) {
         CPUandHeapCheck();
-        heap.add(task);
+        queue.add(task);
         return task;
     }
 
@@ -53,7 +57,7 @@ public class CustomExecutor {
     }
 
     private void CPUandHeapCheck(){
-        if(AssignedThreads == ThreadCount && ThreadCount < availableCPU -1){
+        if(AssignedThreads.equals(ThreadCount) && ThreadCount < availableCPU -1){
             createWorker(threadGroup,"worker " + workerID++);
         }
     }
@@ -64,8 +68,18 @@ public class CustomExecutor {
     }
 
     public void shutdown() {
-        this.stopped = true;
-        this.threadGroup.interrupt();
+      while(true){
+          if(queue.isEmpty() && Integer.compare(AssignedThreads.get(),0) == 0){
+              try {
+                  sleep(20);
+              } catch (InterruptedException e) {
+                  throw new RuntimeException(e);
+              }
+              this.stopped=true;
+              this.threadGroup.interrupt();
+              break;
+          }
+      }
     }
 
     private class Worker extends Thread {
@@ -83,11 +97,11 @@ public class CustomExecutor {
                     timeout = true;
                 }
                 try {
-                    if (!heap.isEmpty()) {
-                        final Runnable job = (Runnable) heap.take();
-                        AssignedThreads++;
+                    if (!queue.isEmpty()) {
+                        final Runnable job = (Runnable) queue.take();
+                        AssignedThreads.incrementAndGet();
                         job.run();
-                        AssignedThreads--;
+                        AssignedThreads.decrementAndGet();
                         start = System.currentTimeMillis();
                     }
                 } catch (InterruptedException e) {
