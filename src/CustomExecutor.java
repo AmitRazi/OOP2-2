@@ -34,22 +34,22 @@ public class CustomExecutor {
 
     public void submit(Runnable op) {
         CPUandHeapCheck();
-        heap.add(TaskFactory.createTask(op));
+        submit(TaskFactory.createTask(op));
     }
 
     public void submit(Runnable op, TaskType type) {
         CPUandHeapCheck();
-        heap.add(TaskFactory.createTask(op, type));
+        submit(TaskFactory.createTask(op,type));
     }
 
-    public <T> void submit(Callable<T> op) {
+    public <T> Future<T> submit(Callable<T> op) {
         CPUandHeapCheck();
-        heap.add(TaskFactory.createTask(op));
+       return submit(TaskFactory.createTask(op));
     }
 
-    public <T> void submit(Callable<T> op, TaskType type) {
+    public <T> Future<T> submit(Callable<T> op, TaskType type) {
         CPUandHeapCheck();
-        heap.add(TaskFactory.createTask(op, type));
+        return submit(TaskFactory.createTask(op,type));
     }
 
     private void CPUandHeapCheck(){
