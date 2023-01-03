@@ -79,12 +79,13 @@ public class CustomExecutor {
             long start = System.currentTimeMillis();
             while (stopped == false && !interrupted() && !timeout) {
                 long time = System.currentTimeMillis() - start;
-                if ((time > 300) && (ThreadCount == availableCPU - 1)) timeout = true;
+                if ((time > 300) && (ThreadCount > availableCPU / 2)){
+                    timeout = true;
+                }
                 try {
                     if (!heap.isEmpty()) {
                         final Runnable job = (Runnable) heap.take();
                         AssignedThreads++;
-                        System.out.println(AssignedThreads);
                         job.run();
                         AssignedThreads--;
                         start = System.currentTimeMillis();
