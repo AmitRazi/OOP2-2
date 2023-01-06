@@ -1,11 +1,10 @@
 
 import java.util.concurrent.*;
 
-import static java.lang.Thread.currentThread;
 import static java.lang.Thread.sleep;
 
 
-public class CallableTask<T> implements Task, Future<T>, Runnable, Comparable<Task> {
+public class CallableTask<T> implements Taskable, Future<T>, Runnable, Comparable<Taskable> {
     private final Callable<T> op;
     private final TaskType type;
     private boolean done = false;
@@ -15,7 +14,7 @@ public class CallableTask<T> implements Task, Future<T>, Runnable, Comparable<Ta
     public CallableTask(Callable<T> op) {
         this.op = op;
         this.type = TaskType.IO;
-        type.setTypePriority(5);
+        type.setTypePriority(2);
     }
 
     public CallableTask(Callable<T> op, TaskType type) {
@@ -74,7 +73,7 @@ public class CallableTask<T> implements Task, Future<T>, Runnable, Comparable<Ta
     }
 
     @Override
-    public int compareTo(Task o) {
+    public int compareTo(Taskable o) {
         return Integer.compare(this.getTaskPriority(),o.getTaskPriority());
     }
 }

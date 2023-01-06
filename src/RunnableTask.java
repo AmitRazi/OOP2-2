@@ -1,13 +1,13 @@
 
 
-public class RunnableTask implements Task, Runnable, Comparable<Task> {
+public class RunnableTask implements Taskable, Runnable, Comparable<Taskable> {
     private final Runnable op;
     private final TaskType type;
 
     public RunnableTask(Runnable op) {
         this.op = op;
         type = TaskType.OTHER;
-        type.setTypePriority(2);
+        type.setTypePriority(3);
     }
 
     public RunnableTask(Runnable op, TaskType type) {
@@ -22,7 +22,7 @@ public class RunnableTask implements Task, Runnable, Comparable<Task> {
 
 
     @Override
-    public int compareTo(Task o) {
+    public int compareTo(Taskable o) {
         return Integer.compare(this.getTaskPriority(),o.getTaskPriority());
     }
 

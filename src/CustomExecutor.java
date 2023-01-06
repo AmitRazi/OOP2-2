@@ -1,59 +1,59 @@
-
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static java.lang.Thread.sleep;
 
 public class CustomExecutor {
 
-    private final PriorityBlockingQueue<Task> heap;
+    private final PriorityBlockingQueue<Taskable> queue;
     private final ThreadGroup threadGroup = new ThreadGroup("MyThreadGroup");
     private boolean stopped = false;
     private final int availableCPU = Runtime.getRuntime().availableProcessors();
-    private int ThreadCount = 0;
+    private volatile int ThreadCount = 0;
     private int workerID = 0;
-    private int AssignedThreads = 0;
 
 
     public CustomExecutor() {
-        heap = new PriorityBlockingQueue<>(availableCPU / 2);
+        queue = new PriorityBlockingQueue<>(availableCPU / 2);
         for (int i = 0; i < availableCPU / 2; i++) {
             createWorker(threadGroup, "worker " + workerID++);
         }
     }
 
     public void submit(RunnableTask task) {
-        CPUandHeapCheck();
-        heap.add(task);
+        if(!stopped) {
+            CPUandHeapCheck();
+            queue.add(task);
+        }
     }
 
     public <T> Future<T> submit(CallableTask<T> task) {
+        if(stopped) return null;
         CPUandHeapCheck();
-        heap.add(task);
+        queue.add(task);
         return task;
     }
 
     public void submit(Runnable op) {
-        CPUandHeapCheck();
-        heap.add(TaskFactory.createTask(op));
+        submit(Task.createTask(op));
     }
 
     public void submit(Runnable op, TaskType type) {
-        CPUandHeapCheck();
-        heap.add(TaskFactory.createTask(op, type));
+        submit(Task.createTask(op,type));
     }
 
-    public <T> void submit(Callable<T> op) {
-        CPUandHeapCheck();
-        heap.add(TaskFactory.createTask(op));
+    public <T> Future<T> submit(Callable<T> op) {
+        return submit(Task.createTask(op));
     }
 
-    public <T> void submit(Callable<T> op, TaskType type) {
-        CPUandHeapCheck();
-        heap.add(TaskFactory.createTask(op, type));
+    public <T> Future<T> submit(Callable<T> op, TaskType type) {
+        return submit(Task.createTask(op,type));
     }
 
     private void CPUandHeapCheck(){
-        if(AssignedThreads == ThreadCount && ThreadCount < availableCPU -1){
+        if(!queue.isEmpty() && ThreadCount < availableCPU -1){
             createWorker(threadGroup,"worker " + workerID++);
         }
     }
@@ -63,9 +63,19 @@ public class CustomExecutor {
         ThreadCount++;
     }
 
+
     public void shutdown() {
-        this.stopped = true;
-        this.threadGroup.interrupt();
+        while(true){
+            if(queue.isEmpty() && threadGroup.activeGroupCount() == 0){
+                try {
+                    sleep(20);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                this.stopped=true;
+                break;
+            }
+        }
     }
 
     private class Worker extends Thread {
@@ -77,16 +87,15 @@ public class CustomExecutor {
         public void run() {
             boolean timeout = false;
             long start = System.currentTimeMillis();
-            while (stopped == false && !interrupted() && !timeout) {
+            while (stopped == false && !this.isInterrupted() && !timeout) {
                 long time = System.currentTimeMillis() - start;
-                if ((time > 300) && (ThreadCount == availableCPU - 1)) timeout = true;
+                if ((time > 300) && (ThreadCount > availableCPU / 2)){
+                    timeout = true;
+                }
                 try {
-                    if (!heap.isEmpty()) {
-                        final Runnable job = (Runnable) heap.take();
-                        AssignedThreads++;
-                        System.out.println(AssignedThreads);
+                    if (!queue.isEmpty()) {
+                        final Runnable job = (Runnable) queue.take();
                         job.run();
-                        AssignedThreads--;
                         start = System.currentTimeMillis();
                     }
                 } catch (InterruptedException e) {
