@@ -22,6 +22,8 @@ public class Main {
             }
             return sum;
         });
+        TaskType t = TaskType.COMPUTATIONAL;
+        t.setTypePriority(5);
         CallableTask<String> task2 = Task.createTask(() -> {
             sleep(1000);
             return null;
@@ -29,21 +31,20 @@ public class Main {
         CallableTask<String> task4 = Task.createTask(() -> {
             sleep(1000);
             return null;
-        });
+        },t);
         CallableTask<String> task5 = Task.createTask(() -> {
             sleep(1000);
             return null;
-        });
+        },t);
         CallableTask<String> task6 = Task.createTask(() -> {
             sleep(1000);
             return null;
-        });
+        },TaskType.COMPUTATIONAL);
         CustomExecutor service = new CustomExecutor();
 
         Future<Integer> sumbit = service.submit(task);
-        TaskType t = TaskType.COMPUTATIONAL;
-        t.setTypePriority(10);
 
+        System.out.println(service.getMaxPriority());
         Future<String> sumbit2 = service.submit(task2);
         Future<String> sumbit4 = service.submit(task4);
         Future<Integer> sumbit3 = service.submit(task3);
@@ -52,7 +53,7 @@ public class Main {
 
         service.submit(new RunnableTask(() -> System.out.println("hello")));
         service.submit(new RunnableTask(() -> System.out.println("hello")));
-
+        System.out.println(service.getMaxPriority());
         service.submit(new RunnableTask(() -> System.out.println("hello")));
         service.submit(new RunnableTask(() -> System.out.println("hello")));
         service.submit(new RunnableTask(() -> System.out.println("hello")));

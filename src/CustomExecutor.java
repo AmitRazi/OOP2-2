@@ -11,9 +11,11 @@ public class CustomExecutor {
     private final int availableCPU = Runtime.getRuntime().availableProcessors();
     private volatile int ThreadCount = 0;
     private int workerID = 0;
+    private final int[] priorityArray;
 
 
     public CustomExecutor() {
+        priorityArray = new int[11];
         queue = new PriorityBlockingQueue<>(availableCPU / 2);
         for (int i = 0; i < availableCPU / 2; i++) {
             createWorker(threadGroup, "worker " + workerID++);
@@ -31,7 +33,22 @@ public class CustomExecutor {
         if(stopped) return null;
         CPUandHeapCheck();
         queue.add(task);
+        setValueInPriorityArray(task.getTaskPriority());
         return task;
+    }
+
+    private void setValueInPriorityArray(int taskPriority) {
+        synchronized (priorityArray) {
+            priorityArray[taskPriority]++;
+        }
+    }
+    public int getMaxPriority(){
+        synchronized (priorityArray) {
+            for (int i = priorityArray.length - 1; i >= 0; i--) {
+                if (priorityArray[i] > 0) return i;
+            }
+        }
+        return 0;
     }
 
     public void submit(Runnable op) {
