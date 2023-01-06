@@ -86,4 +86,13 @@ public class CallableTask<T> implements Taskable, Future<T>, Runnable, Comparabl
     public int compareTo(Taskable o) {
         return Integer.compare(this.getTaskPriority(),o.getTaskPriority());
     }
+
+    @Override
+    public int hashCode() {
+        int result = (getTaskPriority() ^ (getTaskPriority() >>> 32));
+        result = 31 * result + type.hashCode();
+        result = 31 * result + op.hashCode();
+        return result;
+    }
 }
+

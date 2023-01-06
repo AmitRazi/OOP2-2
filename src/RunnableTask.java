@@ -26,6 +26,13 @@ public class RunnableTask implements Taskable, Runnable, Comparable<Taskable> {
         return Integer.compare(this.getTaskPriority(),o.getTaskPriority());
     }
 
+    public int hashCode() {
+        int result = (getTaskPriority() ^ (getTaskPriority() >>> 32));
+        result = 31 * result + type.hashCode();
+        result = 31 * result + op.hashCode();
+        return result;
+    }
+
     @Override
     public void run() {
         this.op.run();

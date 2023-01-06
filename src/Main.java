@@ -62,15 +62,11 @@ public class Main {
 
         service.submit(new RunnableTask(() -> System.out.println("hello")));
         try {
-            System.out.println(sumbit.get(1,TimeUnit.MILLISECONDS));
+            System.out.println(sumbit.get(100,TimeUnit.MILLISECONDS));
             System.out.println(sumbit2.get());
             System.out.println(sumbit3.get());
             System.out.println(sumbit4.get());
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        } catch (ExecutionException e) {
-            throw new RuntimeException(e);
-        } catch (TimeoutException e) {
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
             throw new RuntimeException(e);
         }
         sumbit2 = service.submit(task2);
