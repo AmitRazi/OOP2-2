@@ -1,6 +1,5 @@
 
 import java.util.concurrent.*;
-
 import static java.lang.Thread.sleep;
 
 
@@ -58,7 +57,18 @@ public class CallableTask<T> implements Taskable, Future<T>, Runnable, Comparabl
 
     @Override
     public T get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
-        return null;
+        long start = System.currentTimeMillis();
+        long time = 0;
+        while(isDone() == false){
+           time = System.currentTimeMillis()-start;
+           if(unit.convert(time, TimeUnit.MILLISECONDS) >= timeout){
+               System.err.println("Thread Timeout out");
+               this.done = true;
+               return null;
+           }
+        }
+
+        return this.res;
     }
 
     @Override
