@@ -42,7 +42,7 @@ public class CustomExecutor {
             priorityArray[taskPriority]++;
         }
     }
-    public int getMaxPriority(){
+    public int getCurrentMax(){
         synchronized (priorityArray) {
             for (int i = priorityArray.length - 1; i >= 0; i--) {
                 if (priorityArray[i] > 0) return i;
@@ -82,14 +82,14 @@ public class CustomExecutor {
     public void shutdown() {
         while(true){
             if(queue.isEmpty() && threadGroup.activeGroupCount() == 0){
-                try {
-                    sleep(20);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
                 this.stopped=true;
                 threadGroup.interrupt();
                 break;
+            }
+            try {
+                sleep(20);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
         }
     }

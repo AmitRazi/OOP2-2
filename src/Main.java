@@ -23,7 +23,7 @@ public class Main {
             return sum;
         });
         TaskType t = TaskType.COMPUTATIONAL;
-        t.setTypePriority(5);
+        t.setTypePriority(9);
         CallableTask<String> task2 = Task.createTask(() -> {
             sleep(1000);
             return null;
@@ -44,7 +44,7 @@ public class Main {
 
         Future<Integer> sumbit = service.submit(task);
 
-        System.out.println(service.getMaxPriority());
+        System.out.println(service.getCurrentMax());
         Future<String> sumbit2 = service.submit(task2);
         Future<String> sumbit4 = service.submit(task4);
         Future<Integer> sumbit3 = service.submit(task3);
@@ -53,7 +53,7 @@ public class Main {
 
         service.submit(new RunnableTask(() -> System.out.println("hello")));
         service.submit(new RunnableTask(() -> System.out.println("hello")));
-        System.out.println(service.getMaxPriority());
+        System.out.println(service.getCurrentMax());
         service.submit(new RunnableTask(() -> System.out.println("hello")));
         service.submit(new RunnableTask(() -> System.out.println("hello")));
         service.submit(new RunnableTask(() -> System.out.println("hello")));
@@ -62,7 +62,7 @@ public class Main {
 
         service.submit(new RunnableTask(() -> System.out.println("hello")));
         try {
-            System.out.println(sumbit.get(200,TimeUnit.MILLISECONDS));
+            System.out.println(sumbit.get(1,TimeUnit.MILLISECONDS));
             System.out.println(sumbit2.get());
             System.out.println(sumbit3.get());
             System.out.println(sumbit4.get());

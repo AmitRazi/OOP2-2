@@ -62,7 +62,7 @@ public class CallableTask<T> implements Taskable, Future<T>, Runnable, Comparabl
         while(isDone() == false){
            time = System.currentTimeMillis()-start;
            if(unit.convert(time, TimeUnit.MILLISECONDS) >= timeout){
-               System.err.println("Thread Timeout out");
+               System.err.println(type.getType()+" task with priority: "+type.getTypePriority()+" timed out");
                this.done = true;
                return null;
            }
