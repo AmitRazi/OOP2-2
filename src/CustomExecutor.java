@@ -1,8 +1,6 @@
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.PriorityBlockingQueue;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import static java.lang.Thread.sleep;
 
 public class CustomExecutor {
@@ -23,10 +21,10 @@ public class CustomExecutor {
     }
 
     public void submit(RunnableTask task) {
-        if(!stopped) {
-            CPUandHeapCheck();
-            queue.add(task);
-        }
+        if(stopped) return;
+        CPUandHeapCheck();
+        queue.add(task);
+
     }
 
     public <T> Future<T> submit(CallableTask<T> task) {
@@ -73,6 +71,7 @@ public class CustomExecutor {
                     throw new RuntimeException(e);
                 }
                 this.stopped=true;
+                threadGroup.interrupt();
                 break;
             }
         }
