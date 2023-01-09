@@ -20,9 +20,7 @@ public class CallableTask<T> implements Taskable, Future<T>, Runnable {
      * @param op - A callable operation.
      */
     public CallableTask(Callable<T> op) {
-        this.op = op;
-        this.type = TaskType.IO;
-        type.setTypePriority(2);
+        this(op,TaskType.OTHER);
     }
 
     /**
@@ -109,12 +107,12 @@ public class CallableTask<T> implements Taskable, Future<T>, Runnable {
         long start = System.currentTimeMillis();
         long time = 0;
         while(isDone() == false){
-           time = System.currentTimeMillis()-start;
-           if(unit.convert(time, TimeUnit.MILLISECONDS) >= timeout){
-               System.err.println(type.getType()+" task with priority: "+type.getTypePriority()+" timed out");
-               this.done = true;
-               return null;
-           }
+            time = System.currentTimeMillis()-start;
+            if(unit.convert(time, TimeUnit.MILLISECONDS) >= timeout){
+                System.err.println(type.getType()+" task with priority: "+type.getTypePriority()+" timed out");
+                cancel(true);
+                return null;
+            }
         }
 
         return this.res;
